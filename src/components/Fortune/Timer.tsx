@@ -8,7 +8,7 @@ export const Timer = ({
   seconds: string;
 }) => (
   <div>
-    <div className="flex items-center gap-2 justify-center mt-6">
+    <div className="flex items-center gap-1 md:gap-2 justify-center mt-6">
       <div className="flex flex-col items-center">
         <div className="flex gap-1">
           {hours.split("").map((n, i) => (

@@ -3,7 +3,7 @@ import { Button } from "../ui/Button/Button";
 type CardProps = { top: string; middle: string; button: string; img?: string };
 
 export const CardReviews = ({ top, middle, button, img }: CardProps) => (
-  <div className="w-91.25 max-h-55 font-alumni relative rounded-lg border border-[#2E3139]">
+  <div className="w-full max-h-55 font-alumni relative rounded-lg border border-[#2E3139]">
     <span className="text-[20px] px-2 py-0.5 bg-[#FF0633] absolute top-0 left-6">
       Доступен
     </span>

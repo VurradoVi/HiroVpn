@@ -63,13 +63,13 @@ export const Quests = () => (
         />
       </svg>
     </div>
-    <div className="flex items-center gap-6">
+    <div className="flex flex-wrap justify-center lg:justify-between md:flex-nowrap items-center gap-6">
       <Fortune />
-      <div className="w-xl max-h-68 bg-[#FDFDFD] font-alumni relative">
+      <div className="w-xl max-h-75 lg:max-h-68 bg-[#FDFDFD] font-alumni relative">
         <span className="text-[20px] px-2 py-0.5 bg-[#FF0633] absolute top-0 left-6">
           Доступен
         </span>
-        <div className="p-6">
+        <div className="p-6 min-w-85">
           <h3 className="text-[32px] text-[#1E2025] font-semibold tracking-[1%] uppercase pb-4 pt-2">
             Расскажи о Hiro
           </h3>
@@ -85,7 +85,7 @@ export const Quests = () => (
         </div>
       </div>
     </div>
-    <div className="flex justify-between pt-8 flex-wrap gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
       {reviewsCards.map((card) => (
         <CardReviews key={card.top} {...card} />
       ))}

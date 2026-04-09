@@ -15,7 +15,7 @@ import { Button } from "../ui/Button/Button";
 export const Footer = () => {
   return (
     <footer className="bg-[#1E2025] text-[#ccc] p-10 text-sm border border-[#2E3139] rounded-lg">
-      <div className="container mx-auto grid grid-cols-4 gap-8">
+      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="flex flex-col gap-4 text-[#FDFDFD]">
           <span className="font-bold text-white">HIRO VPN</span>
           <a href="#" className="hover:text-white">

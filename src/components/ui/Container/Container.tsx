@@ -11,6 +11,6 @@ export const Container = ({ children, size = "lg" }: ContainerProps) => {
   };
 
   return (
-    <div className={`w-full mx-auto ${sizeClasses[size]}`}>{children}</div>
+    <div className={`w-full mx-auto ${sizeClasses[size]} px-8`}>{children}</div>
   );
 };
