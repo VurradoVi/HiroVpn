@@ -1,0 +1,174 @@
+import { useEffect, useRef, useState } from "react";
+import fortuneImg from "../../assets/img.svg";
+import card1 from "../../assets/card1.svg";
+import card2 from "../../assets/card2.svg";
+import card3 from "../../assets/card3.svg";
+import gift from "../../assets/gift.svg";
+import union from "../../assets/Union.svg";
+import { Card } from "./Card";
+import { Button } from "../ui/Button/Button";
+import { Modal } from "./Modal";
+import { Timer } from "./Timer";
+
+export type CardType = {
+  top: string;
+  img: string;
+  bottom: string;
+  winner: boolean;
+};
+
+const Cards = [
+  { top: "Бесплатные", img: card1, bottom: "6 часов", winner: true },
+  { top: "Cкидка", img: card2, bottom: "20%", winner: true },
+  { top: "Cкидка", img: card2, bottom: "50%", winner: true },
+  { top: "Попробуйте", img: card3, bottom: "завтра", winner: false },
+  { top: "Cкидка", img: card2, bottom: "30%", winner: true },
+  { top: "Cкидка", img: card2, bottom: "10%", winner: true },
+  { top: "Попробуйте", img: card3, bottom: "завтра", winner: false },
+];
+
+const extendedCards = new Array(10).fill(Cards).flat();
+
+const CARD_WIDTH = 120;
+const hours24 = 24 * 60 * 60;
+const GAP = 4;
+const STEP = CARD_WIDTH + GAP;
+
+export const Fortune = () => {
+  const [offset, setOffset] = useState(0);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [winnerCard, setWinnerCard] = useState<CardType | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const hours = String(Math.floor(timeLeft / 3600)).padStart(2, "0");
+  const minutes = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, "0");
+  const seconds = String(timeLeft % 60).padStart(2, "0");
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const containerWidth = containerRef.current.offsetWidth;
+    const CENTER_OFFSET = containerWidth / 2 - STEP / 2;
+
+    const startIndex = 2;
+
+    setOffset(startIndex * STEP - CENTER_OFFSET);
+  }, []);
+
+  useEffect(() => {
+    if (!winnerCard) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [winnerCard]);
+
+  const spin = () => {
+    if (isSpinning) return;
+    setIsSpinning(true);
+
+    const containerWidth = containerRef.current?.offsetWidth || 0;
+    const CENTER_OFFSET = containerWidth / 2 - STEP / 2;
+
+    const winnerBaseIndex = Math.floor(Math.random() * Cards.length);
+    const winner = Cards[winnerBaseIndex];
+
+    const positions = extendedCards
+      .map((card, i) => ({ card, i }))
+      .filter((x) => x.card === winner);
+
+    const targetIndex = positions[positions.length - 1].i;
+
+    const currentIndex = Math.round(offset / STEP);
+
+    const spins = Cards.length * 6;
+
+    const finalIndex = currentIndex + spins + (targetIndex % Cards.length);
+
+    const newOffset = finalIndex * STEP - CENTER_OFFSET;
+
+    setOffset(newOffset);
+
+    setTimeout(() => {
+      setIsSpinning(false);
+      setWinnerCard(winner);
+      setIsModalOpen(true);
+      setTimeLeft(hours24);
+    }, 3000);
+  };
+
+  return (
+    <div className="max-w-xl border border-[#2E3139] rounded-lg font-alumni">
+      <div className="flex justify-between items-center p-6">
+        <div>
+          <h3 className="font-semibold text-[32px] pb-1 uppercase">
+            Колесо Фортуны
+          </h3>
+          <p className="whitespace-pre-line text-[20px] text-[#C3C2BD]">
+            Испытайте удачу раз в день {"\n"}и выигрывайте бонусы!
+          </p>
+        </div>
+        <img src={fortuneImg} alt="fortune" />
+      </div>
+
+      <div
+        ref={containerRef}
+        className="overflow-hidden w-full border-y border-[#2E3139] pb-4 relative"
+      >
+        {!winnerCard && (
+          <img
+            src={union}
+            alt="union"
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-xl font-bold text-[#ff0633]"
+          />
+        )}
+
+        {winnerCard ? (
+          <Timer hours={hours} minutes={minutes} seconds={seconds} />
+        ) : (
+          <div
+            className="flex gap-1 transition-transform duration-3000 cubic-bezier(0.1, 0.7, 0.1, 1) "
+            style={{
+              transform: `translateX(-${offset}px)`,
+            }}
+          >
+            {extendedCards.map((card, index) => (
+              <Card key={index} {...card} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="p-5">
+        <Button
+          onClick={spin}
+          disabled={isSpinning || !!winnerCard}
+          variant={winnerCard ? "success" : "secondary"}
+          className="w-full uppercase text-[24px] flex items-center justify-center gap-3"
+        >
+          {winnerCard ? "Забрать награду" : "испытать удачу"}
+          <img src={gift} alt="gift" />
+        </Button>
+
+        <p className="text-[20px] whitespace-pre-line pt-2 pb-2">
+          Крути колесо 7 дней подряд без пропусков и получи на 7-й день{"\n"}
+          гарантированный 1 день подписки!
+        </p>
+
+        <h2 className="font-semibold text-[44px] p-5 tracking-[25px] text-center border border-[#2E3139] rounded-lg relative">
+          <div className="bg-[#FF0633] w-20 h-4 absolute top-1/2 -translate-y-1/2 left-0 -z-1"></div>
+          1 2 3 4 5 6 7
+        </h2>
+      </div>
+
+      {isModalOpen && winnerCard && (
+        <Modal card={winnerCard} onClose={() => setIsModalOpen(false)} />
+      )}
+    </div>
+  );
+};
