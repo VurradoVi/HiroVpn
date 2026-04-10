@@ -20,7 +20,7 @@ export const Header = () => {
         <Button isActive>Аккаунт</Button>
       </div>
 
-      <div className="ml-auto xl:ml-0">
+      <div className="hidden md:flex ml-auto xl:ml-0">
         <Button>
           <div className="flex gap-2.5 items-center cursor-pointer">
             РУ
