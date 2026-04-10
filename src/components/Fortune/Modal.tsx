@@ -7,19 +7,30 @@ type Props = {
 };
 
 export const Modal = ({ card, onClose }: Props) => (
-  <div className="fixed inset-0 flex items-center justify-center z-100 bg-black/50 backdrop-blur-sm">
-    <div className="max-w-90 bg-[#1E2025] border border-[#2E3139] rounded-lg p-8">
-      <h2 className="whitespace-pre-line text-center text-4xl font-semibold">
+  <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center sm:justify-center">
+    <div
+      className="
+        w-full 
+        h-[50vh] 
+        sm:h-auto 
+        sm:max-w-90 
+        bg-[#1E2025] 
+        border border-[#2E3139] 
+        rounded-t-2xl sm:rounded-lg 
+        p-6 sm:p-8
+      "
+    >
+      <div className="w-12 h-1 bg-gray-500 rounded-full mx-auto mb-4 sm:hidden" />
+
+      <h2 className="whitespace-pre-line text-center text-3xl sm:text-4xl font-semibold">
         {card.winner ? "Поздравляем!\nВы выиграли" : "В другой раз\nповезёт!"}
       </h2>
 
-      {card && (
-        <div className="flex items-center justify-center gap-2 my-4">
-          <p className="text-[24px] font-semibold">{card.top}</p>
-          <img src={card.img} alt="fortune" className="w-30 h-30" />
-          <p className="font-kelly text-xl font-semibold">{card.bottom}</p>
-        </div>
-      )}
+      <div className="flex items-center justify-center gap-2 my-4">
+        <p className="text-[22px] sm:text-[24px] font-semibold">{card.top}</p>
+        <img src={card.img} alt="fortune" className="w-30 h-30" />
+        <p className="font-kelly text-[20px] font-semibold">{card.bottom}</p>
+      </div>
 
       {card.winner && (
         <p className="text-center text-sm text-[#C3C2BD] mb-4">

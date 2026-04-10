@@ -11,6 +11,7 @@ import { Modal } from "./Modal";
 import { Timer } from "./Timer";
 
 export type CardType = {
+  id: number;
   top: string;
   img: string;
   bottom: string;
@@ -18,21 +19,25 @@ export type CardType = {
 };
 
 const Cards: CardType[] = [
-  { top: "Бесплатные", img: card1, bottom: "6 часов", winner: true },
-  { top: "Cкидка", img: card2, bottom: "20%", winner: true },
-  { top: "Cкидка", img: card2, bottom: "50%", winner: true },
-  { top: "Попробуйте", img: card3, bottom: "завтра", winner: false },
-  { top: "Cкидка", img: card2, bottom: "30%", winner: true },
-  { top: "Cкидка", img: card2, bottom: "10%", winner: true },
-  { top: "Попробуйте", img: card3, bottom: "завтра", winner: false },
+  { id: 1, top: "Бесплатные", img: card1, bottom: "6 часов", winner: true },
+  { id: 2, top: "Cкидка", img: card2, bottom: "20%", winner: true },
+  { id: 3, top: "Cкидка", img: card2, bottom: "50%", winner: true },
+  { id: 4, top: "Попробуйте", img: card3, bottom: "завтра", winner: false },
+  { id: 5, top: "Cкидка", img: card2, bottom: "30%", winner: true },
+  { id: 6, top: "Cкидка", img: card2, bottom: "10%", winner: true },
+  { id: 7, top: "Попробуйте", img: card3, bottom: "завтра", winner: false },
 ];
 
-const extendedCards = new Array(10).fill(Cards).flat();
+const extendedCards = Array(10)
+  .fill(null)
+  .flatMap(() => Cards);
 
 const CARD_WIDTH = 120;
 const GAP = 4;
 const STEP = CARD_WIDTH + GAP;
-const HOURS_24 = 24 * 60 * 60;
+const INITIAL_INDEX = 2;
+const SPIN_DURATION = 3000;
+const DAY_IN_SECONDS = 86400;
 
 export const Fortune = () => {
   const [offset, setOffset] = useState(0);
@@ -40,14 +45,8 @@ export const Fortune = () => {
   const [winnerCard, setWinnerCard] = useState<CardType | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const centerOffsetRef = useRef(0);
-
-  const hours = String(Math.floor(timeLeft / 3600)).padStart(2, "0");
-  const minutes = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, "0");
-  const seconds = String(timeLeft % 60).padStart(2, "0");
 
   const calculateCenterOffset = useCallback(() => {
     if (!containerRef.current) return 0;
@@ -55,42 +54,40 @@ export const Fortune = () => {
     return containerWidth / 2 - CARD_WIDTH / 2;
   }, []);
 
+  const updateInitialOffset = useCallback(() => {
+    const centerOffset = calculateCenterOffset();
+    return INITIAL_INDEX * STEP - centerOffset;
+  }, [calculateCenterOffset]);
+
   useEffect(() => {
-    const updateOffset = () => {
-      const centerOffset = calculateCenterOffset();
-      centerOffsetRef.current = centerOffset;
-      const startIndex = 2;
-      return startIndex * STEP - centerOffset;
-    };
+    setOffset(updateInitialOffset());
+  }, [updateInitialOffset]);
 
-    if (!isInitialized) {
-      setOffset(updateOffset());
-      setIsInitialized(true);
-    }
-
+  useEffect(() => {
     const handleResize = () => {
-      if (isSpinning || winnerCard) return;
-      setOffset(updateOffset());
+      setOffset(updateInitialOffset());
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [calculateCenterOffset, isSpinning, winnerCard, isInitialized]);
+  }, [updateInitialOffset]);
 
   useEffect(() => {
-    if (!winnerCard) return;
+    if (!timeLeft) return;
+
     const interval = setInterval(() => {
       setTimeLeft((prev) => Math.max(prev - 1, 0));
     }, 1000);
+
     return () => clearInterval(interval);
-  }, [winnerCard]);
+  }, [timeLeft]);
 
   const spin = () => {
     if (isSpinning || winnerCard) return;
+
     setIsSpinning(true);
 
     const centerOffset = calculateCenterOffset();
-    centerOffsetRef.current = centerOffset;
 
     const winnerBaseIndex = Math.floor(Math.random() * Cards.length);
     const winner = Cards[winnerBaseIndex];
@@ -98,20 +95,13 @@ export const Fortune = () => {
     const currentCenterIndex = Math.round((offset + centerOffset) / STEP);
     const minAdditionalSteps = Cards.length * 3;
 
-    let targetIndex = -1;
-    for (
-      let i = currentCenterIndex + minAdditionalSteps;
-      i < extendedCards.length;
-      i++
-    ) {
-      if (extendedCards[i] === winner) {
+    let targetIndex = currentCenterIndex + minAdditionalSteps;
+
+    for (let i = targetIndex; i < extendedCards.length; i++) {
+      if (extendedCards[i].id === winner.id) {
         targetIndex = i;
         break;
       }
-    }
-
-    if (targetIndex === -1) {
-      targetIndex = currentCenterIndex + minAdditionalSteps;
     }
 
     const newOffset = targetIndex * STEP - centerOffset;
@@ -121,9 +111,13 @@ export const Fortune = () => {
       setIsSpinning(false);
       setWinnerCard(winner);
       setIsModalOpen(true);
-      setTimeLeft(HOURS_24);
-    }, 3000);
+      setTimeLeft(DAY_IN_SECONDS);
+    }, SPIN_DURATION);
   };
+
+  const hours = String(Math.floor(timeLeft / 3600)).padStart(2, "0");
+  const minutes = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, "0");
+  const seconds = String(timeLeft % 60).padStart(2, "0");
 
   return (
     <div className="w-82 lg:w-140 border border-[#2E3139] rounded-lg font-alumni">
@@ -146,8 +140,8 @@ export const Fortune = () => {
         {!winnerCard && (
           <img
             src={union}
-            alt="union"
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-xl font-bold text-[#ff0633]"
+            alt="pointer"
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10"
           />
         )}
 
@@ -155,13 +149,13 @@ export const Fortune = () => {
           <Timer hours={hours} minutes={minutes} seconds={seconds} />
         ) : (
           <div
-            className="flex gap-1 transition-transform duration-3000 cubic-bezier(0.1, 0.7, 0.1, 1) w-full"
+            className="flex gap-1 transition-transform duration-[3000ms] ease-out"
             style={{
               transform: `translateX(-${offset}px)`,
             }}
           >
             {extendedCards.map((card, index) => (
-              <Card key={index} {...card} />
+              <Card key={`${card.id}-${index}`} {...card} />
             ))}
           </div>
         )}
@@ -174,7 +168,7 @@ export const Fortune = () => {
           variant={winnerCard ? "success" : "secondary"}
           className="w-full uppercase text-[24px] flex items-center justify-center gap-3"
         >
-          {winnerCard ? "Забрать награду" : "испытать удачу"}
+          {winnerCard ? "Забрать награду" : "Испытать удачу"}
           <img src={gift} alt="gift" />
         </Button>
 
