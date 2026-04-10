@@ -149,7 +149,7 @@ export const Fortune = () => {
           <Timer hours={hours} minutes={minutes} seconds={seconds} />
         ) : (
           <div
-            className="flex gap-1 transition-transform duration-[3000ms] ease-out"
+            className="flex gap-1 transition-transform duration-3000 ease-out"
             style={{
               transform: `translateX(-${offset}px)`,
             }}
