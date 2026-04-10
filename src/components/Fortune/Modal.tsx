@@ -18,6 +18,8 @@ export const Modal = ({ card, onClose }: Props) => (
         border border-[#2E3139] 
         rounded-t-2xl sm:rounded-lg 
         p-6 sm:p-8
+        animate-[slideUp_0.4s_ease-out]
+        sm:animate-[fadeIn_0.4s_ease-out]
       "
     >
       <div className="w-12 h-1 bg-gray-500 rounded-full mx-auto mb-4 sm:hidden" />
